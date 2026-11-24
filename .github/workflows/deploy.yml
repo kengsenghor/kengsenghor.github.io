@@ -24,6 +24,14 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Add the photo from a private secret (it is never committed)
+        env:
+          HEADSHOT_B64: ${{ secrets.HEADSHOT_B64 }}
+        run: |
+          if [ -n "$HEADSHOT_B64" ]; then
+            mkdir -p src/assets
+            printf '%s' "$HEADSHOT_B64" | base64 -d > src/assets/headshot.jpg
+          fi
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

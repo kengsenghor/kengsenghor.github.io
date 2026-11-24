@@ -8,3 +8,4 @@ playwright-report
 .omc
 banned-terms.txt
 docs/
+src/assets/headshot.*

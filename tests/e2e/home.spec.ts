@@ -1,4 +1,7 @@
 import { test, expect } from '@playwright/test';
+import { existsSync } from 'node:fs';
+
+const hasPhoto = existsSync('src/assets/headshot.jpg');
 
 test('h1 contains the profile name', async ({ page }) => {
   await page.goto('/');
@@ -36,14 +39,19 @@ test('build-log hero lines are plain text and carry no animation under reduced m
   expect(anim).toBe('none');
 });
 
-test('shows a monogram instead of a photo', async ({ page, request }) => {
+test('shows the photo when it is present locally or in the build, else the monogram', async ({ page, request }) => {
   await page.goto('/');
-  await expect(page.locator('img.headshot')).toHaveCount(0);
-  const mono = page.locator('.monogram');
-  await expect(mono).toBeVisible();
-  await expect(mono).toHaveText('KH');
-  await expect(mono).toHaveAttribute('aria-hidden', 'true');
-  expect((await request.get('/headshot.jpg')).status()).toBe(404);
+  expect((await request.get('/headshot.jpg')).status()).toBe(404); // never served from public/
+  if (hasPhoto) {
+    const img = page.locator('img.headshot');
+    await expect(img).toBeVisible();
+    await expect(img).toHaveAttribute('alt', /Keng Seng Hor/);
+    expect(await img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth >= 200)).toBe(true);
+    await expect(page.locator('.monogram')).toHaveCount(0);
+  } else {
+    await expect(page.locator('img.headshot')).toHaveCount(0);
+    await expect(page.locator('.monogram')).toHaveText('KH');
+  }
 });
 
 test('has LinkedIn and email links and no tel: link', async ({ page }) => {

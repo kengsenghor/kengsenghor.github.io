@@ -12,6 +12,7 @@ Static work-portfolio site for Keng Seng Hor, built with Astro. The home page is
 | `npm test` | Unit tests (Vitest), including the naming-rule guard |
 | `npm run test:e2e` | Browser tests (Playwright): behaviour, no-JS, theme, accessibility (axe, WCAG 2.1 AA) |
 | `npm run scan` | Scan `dist/` for banned terms (run after `build`) |
+| `npm run cv-pdf` | Regenerate `public/cv.pdf` from the `/cv` page (run after `build`, then build again) |
 | `npm run lighthouse` | Lighthouse scores for key routes (run after `build`) |
 
 Full verification: `npm run check && npm test && npm run build && npm run scan && npm run test:e2e && npm run lighthouse`.
@@ -48,9 +49,7 @@ No company-related terms anywhere: no employer, internal product or vendor brand
 
 `npm run build` produces plain static files in `dist/`. Upload them to any static host and serve at the domain root. There is no server and no `base` path.
 
-## Placeholders to replace before launch
+## Photo and CV download
 
-The headshot is `public/headshot.jpg` (480px, metadata stripped). Still a placeholder:
-
-
-- `public/cv-placeholder.txt`: replace with a PDF CV that follows the naming rule, and update the link in `src/pages/cv.astro`.
+- The headshot is `public/headshot.jpg` (480px, camera metadata stripped).
+- The CV download `public/cv.pdf` is generated from the `/cv` page by `npm run cv-pdf`, so it matches the page and carries no phone number or company names. After changing `src/data/career.ts`, run `npm run build && npm run cv-pdf` and commit the new PDF. `npm run scan` reads the PDF text with `pdftotext`.

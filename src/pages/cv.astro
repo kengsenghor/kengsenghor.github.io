@@ -5,7 +5,8 @@ import { roles, education, certifications, skills, profile } from '../data/caree
 <Base title="CV | Keng Seng Hor" description="Plain-text CV of Keng Seng Hor: roles, education and certifications.">
   <h1>CV</h1>
   <p class="muted">{profile.name}, {profile.title}</p>
-  <p><a href="/cv-placeholder.txt" download>Download CV</a></p>
+  <p class="no-print"><a href="/cv.pdf" download="Keng-Seng-Hor-CV.pdf">Download CV (PDF)</a></p>
+  <p class="print-only">{profile.email} · linkedin.com/in/horkengseng</p>
 
   <h2>Summary</h2>
   <p>{profile.summary}</p>
@@ -33,6 +34,8 @@ import { roles, education, certifications, skills, profile } from '../data/caree
   <ul><li>English, professional working</li><li>Chinese, professional working</li><li>Malay, professional working</li><li>Cantonese, native or bilingual</li></ul>
 </Base>
 <style>
+  .print-only { display: none; }
+  @media print { .print-only { display: block; } .no-print { display: none; } }
   .role { margin: 0 0 1.5rem; }
   .role h3 { margin: 0; }
   .period { font-family: var(--mono); font-size: .85rem; margin: .1rem 0 .5rem; }

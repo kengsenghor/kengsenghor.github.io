@@ -2,7 +2,7 @@
 title: Rescuing a legacy Selenium C# test suite
 role: Software Test Team Leader
 period: 2019 onwards
-summary: Redesigning an unreliable end-to-end suite onto layered page objects with parallel execution, then reusing the pattern for a new product team. Still growing years later.
+summary: Redesigning an unreliable end-to-end suite onto layered page objects with parallel execution, so the team could run and maintain it. Still growing years later.
 tags: [Test automation, Selenium, C#, Page Object Model]
 ---
 
@@ -24,4 +24,4 @@ I did not patch it; I redesigned it. My first commit was on 23 August 2019. This
 
 ## Result
 
-The suite became something the team could run and maintain, and the team still maintains and expands it today on the framework I built. By approximate figures it has 60+ page objects, 100+ test fixtures, 15+ shared helpers and just 5 control-layer classes: the core stays tiny while page objects and tests grow, and that ratio is the point. New tests are cheap because the team copies a proven pattern. Together with a principal software engineer, I later brought the same pattern to a different product whose team had just been set up, so they started with a proven structure instead of from zero.
+The suite became something the team could run and maintain, and the team still maintains and expands it today on the framework I built. By approximate figures it has 60+ page objects, 100+ test fixtures, 15+ shared helpers and just 5 control-layer classes: the core stays tiny while page objects and tests grow, and that ratio is the point. New tests are cheap because the team copies a proven pattern.

@@ -45,6 +45,10 @@ describe('case study frontmatter', () => {
     const { data } = matter(readFileSync(join(dir, 'forecasting-with-points-per-person-day.md'), 'utf8'));
     expect(data.widget).toBe('forecast');
   });
+  it('the Selenium study makes no claim about reusing the pattern for another product team', () => {
+    const raw = readFileSync(join(dir, 'rescuing-legacy-selenium-suite.md'), 'utf8');
+    expect(raw).not.toMatch(/proven structure|new product team|brought the same pattern|just been set up/i);
+  });
   it('rejects an empty summary', () => {
     const r = workSchema.safeParse({ title: 'T', role: 'R', period: 'P', summary: '', tags: ['x'] });
     expect(r.success).toBe(false);

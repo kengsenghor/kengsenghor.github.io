@@ -42,6 +42,14 @@ test('headshot has meaningful alt text', async ({ page }) => {
   await expect(img).toHaveAttribute('alt', /Keng Seng Hor/);
 });
 
+test('headshot is the real photo and loads', async ({ page }) => {
+  await page.goto('/');
+  const img = page.locator('img.headshot');
+  await expect(img).toHaveAttribute('src', '/headshot.jpg');
+  const ok = await img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth >= 240);
+  expect(ok).toBe(true);
+});
+
 test('has LinkedIn and email links and no tel: link', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('main a[href="https://www.linkedin.com/in/horkengseng"]').first()).toBeVisible();

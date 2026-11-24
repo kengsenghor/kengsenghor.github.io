@@ -50,5 +50,7 @@ No company-related terms anywhere: no employer, internal product or vendor brand
 
 ## Placeholders to replace before launch
 
-- `public/headshot-placeholder.svg`: replace with a real headshot and update the `src` in `src/pages/index.astro`.
+The headshot is `public/headshot.jpg` (480px, metadata stripped). Still a placeholder:
+
+
 - `public/cv-placeholder.txt`: replace with a PDF CV that follows the naming rule, and update the link in `src/pages/cv.astro`.

@@ -1,0 +1,21 @@
+---
+import type { Role } from '../data/career';
+interface Props { role: Role }
+const { role } = Astro.props;
+const period = `${role.start} to ${role.end}`;
+---
+<details class="stage" data-stage={role.stage}>
+  <summary><span class="ok" aria-hidden="true">✔</span> <strong>{role.title}</strong> <span class="muted period">{period}</span></summary>
+  <div class="stage-body">
+    <p>{role.summary}</p>
+    <ul>{role.bullets.map((b) => <li>{b}</li>)}</ul>
+  </div>
+</details>
+<style>
+  .stage { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); margin: 0 0 .6rem; }
+  summary { cursor: pointer; padding: .75rem 1rem; display: flex; flex-wrap: wrap; gap: .25rem .75rem; align-items: baseline; }
+  .ok { color: var(--ok); font-family: var(--mono); }
+  .period { font-family: var(--mono); font-size: .85rem; }
+  .stage-body { padding: 0 1rem 1rem; }
+  .stage-body ul { margin: .5rem 0 0; padding-left: 1.2rem; }
+</style>

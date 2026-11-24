@@ -1,6 +1,78 @@
 ---
 import Base from '../layouts/Base.astro';
+import Stage from '../components/Stage.astro';
+import CaseCard from '../components/CaseCard.astro';
+import { roles, profile, certifications, skills, type Stage as StageName } from '../data/career';
+
+let cases: { id: string; data: { title: string; summary: string; tags: string[] } }[] = [];
+try {
+  const { getCollection } = await import('astro:content');
+  cases = (await getCollection('work')) as typeof cases;
+} catch {
+  cases = [];
+}
+
+const order: StageName[] = ['firmware', 'telecom', 'qa-leadership', 'engineering-management'];
+const year = (d: string) => d.slice(0, 4);
+const logLines = order.map((s) => {
+  const rs = roles.filter((r) => r.stage === s);
+  const from = Math.min(...rs.map((r) => Number(year(r.start))));
+  const to = rs.some((r) => r.end === 'present') ? 'present' : String(Math.max(...rs.map((r) => Number(year(r.end)))));
+  return `stage ${s} (${from} to ${to}): passed`;
+});
 ---
-<Base title="Keng Seng Hor" description="Work portfolio of Keng Seng Hor, Senior Software Engineering Manager.">
-  <h1>Keng Seng Hor</h1>
+<Base title="Keng Seng Hor | Work portfolio" description="Work portfolio of Keng Seng Hor, Senior Software Engineering Manager: quality engineering, delivery and AI-assisted engineering.">
+  <section class="hero">
+    <img class="headshot" src="/headshot-placeholder.svg" width="120" height="120" alt="Portrait of Keng Seng Hor" />
+    <div>
+      <h1>Keng Seng Hor</h1>
+      <p class="title">{profile.title}</p>
+      <p>{profile.summary}</p>
+      <p class="links">
+        <a href={profile.linkedin}>LinkedIn</a> · <a href={`mailto:${profile.email}`}>Email</a>
+      </p>
+    </div>
+  </section>
+
+  <section aria-labelledby="run">
+    <h2 id="run">Pipeline run</h2>
+    <ol class="build-log">
+      <li class="cmd">$ pipeline run --career</li>
+      {logLines.map((l) => <li><span class="ok">✔</span> {l}</li>)}
+      <li><span class="ok">✔</span> quality gate: passed</li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="stages">
+    <h2 id="stages">Stages</h2>
+    {roles.map((r) => <Stage role={r} />)}
+  </section>
+
+  <section aria-labelledby="work">
+    <h2 id="work">Selected work</h2>
+    <div class="grid">
+      {cases.map((c) => <CaseCard slug={c.id} title={c.data.title} summary={c.data.summary} tags={c.data.tags} />)}
+    </div>
+    <p><a href="/work">All case studies</a></p>
+  </section>
+
+  <section aria-labelledby="skills">
+    <h2 id="skills">Skills and certifications</h2>
+    <ul class="chips">{skills.map((s) => <li>{s}</li>)}</ul>
+    <ul>{certifications.map((c) => <li>{c}</li>)}</ul>
+  </section>
 </Base>
+
+<style>
+  .hero { display: grid; gap: 1.25rem; grid-template-columns: 1fr; align-items: start; }
+  @media (min-width: 40rem) { .hero { grid-template-columns: auto 1fr; } }
+  .headshot { border-radius: 50%; width: 120px; height: 120px; object-fit: cover; border: 2px solid var(--line); }
+  .title { font-family: var(--mono); color: var(--muted); margin: 0 0 1rem; }
+  .build-log { font-family: var(--mono); font-size: .9rem; list-style: none; margin: 0; padding: 1rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow-wrap: anywhere; }
+  .build-log li { margin: .15rem 0; }
+  .build-log .cmd { color: var(--muted); }
+  .ok { color: var(--ok); }
+  .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+  .chips { display: flex; flex-wrap: wrap; gap: .4rem; list-style: none; padding: 0; font-size: .9rem; }
+  .chips li { border: 1px solid var(--line); border-radius: 999px; padding: .1rem .75rem; background: var(--surface); }
+</style>

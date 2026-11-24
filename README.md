@@ -43,7 +43,7 @@ Roles, education, certifications and the profile live in `src/data/career.ts` an
 
 ## Naming rule
 
-No company-related terms anywhere: no employer, internal product or vendor brand names. Describe work generically. `banned-terms.txt` lists the terms. It is git-ignored and kept on your machine only (copy `banned-terms.example.txt` to create it); the tests and scan fail with a clear message when it is missing. the unit tests scan `src/`, `public/`, `docs/` and this README, and `npm run scan` scans the built site. Add a term to that file whenever a new one needs blocking. Run the checks on a machine that has the file; a fresh clone will fail until it is created.
+No company-related terms anywhere: no employer, internal product or vendor brand names. Describe work generically. `banned-terms.txt` lists the terms. It is git-ignored and kept on your machine only (copy `banned-terms.example.txt` to create it); the tests and scan fail with a clear message when it is missing. the unit tests scan `src/`, `public/`, `tests/`, `scripts/`, the root config files and this README, and `npm run scan` scans the built site. Add a term to that file whenever a new one needs blocking. Run the checks on a machine that has the file; a fresh clone will fail until it is created.
 
 ## Deploy
 

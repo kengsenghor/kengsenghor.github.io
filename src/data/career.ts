@@ -29,7 +29,8 @@ export const roles: Role[] = [
     summary:
       'Lead four teams (two managers, eighteen engineers and testers) delivering three cloud-hosted SaaS products and a shared component platform.',
     bullets: [
-      'Accountable for delivery, capacity and quality across the teams; own people management end to end, including hiring, coaching and career development. Promoted twice in 16 months.',
+      'Accountable for delivery, capacity and quality across the teams; own people management end to end, including hiring, coaching and career development, and building a leadership pipeline across the teams.',
+      'Promoted twice in 16 months, from Software Test Team Leader to Software Engineering Manager, then Senior Software Engineering Manager.',
       'Moved a resource-constrained shared team from Scrum to Kanban and directed one manager to shorten sprints from four weeks to two.',
       'Architected and govern an agentic AI testing pipeline with governed stages, copilot and autopilot modes, and halt rules, built on observability because AI agents are probabilistic.',
       'Set engineering standards and quality gates: a shared component library with a visual test suite of 1,800+ automated tests run per browser in CI, test-management traceability and a cross-product dashboard.',

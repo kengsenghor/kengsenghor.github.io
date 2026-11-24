@@ -38,3 +38,11 @@ describe('career data', () => {
     ]);
   });
 });
+
+describe('resume fidelity', () => {
+  it('keeps the resume wording for the promotions bullet', () => {
+    const all = roles.flatMap((r) => r.bullets).join(' ');
+    expect(all).toContain('Promoted twice in 16 months');
+    expect(all).not.toContain('Promoted two people');
+  });
+});

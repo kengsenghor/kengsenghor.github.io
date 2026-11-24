@@ -35,12 +35,14 @@ function walk(dir: string, out: string[] = []): string[] {
 }
 
 describe('repository content', () => {
-  it('contains no banned term in src/, public/, docs/ or README.md', () => {
+  it('contains no banned term in src/, public/, docs/, tests/, scripts/, root config or README.md', () => {
     const root = process.cwd();
     const terms = loadBannedTerms(join(root, 'banned-terms.txt'));
-    const files = ['src', 'public', 'docs'].flatMap((d) => { try { return walk(join(root, d)); } catch { return []; } }).concat(join(root, 'README.md'));
+    const rootFiles = readdirSync(root).filter((n) => /\.(ts|mjs|json|md)$/.test(n) && n !== 'package-lock.json').map((n) => join(root, n));
+    const files = ['src', 'public', 'docs', 'tests', 'scripts'].flatMap((d) => { try { return walk(join(root, d)); } catch { return []; } }).concat(rootFiles);
     const hits: string[] = [];
     for (const f of files) {
+      if (f.endsWith('banned-terms.test.ts')) continue;
       if (findBannedTerms(readFileSync(f, 'utf8'), terms).length) hits.push(relative(root, f));
     }
     expect(hits).toEqual([]);

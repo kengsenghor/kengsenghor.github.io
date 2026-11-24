@@ -40,11 +40,11 @@ describe('career data', () => {
 });
 
 describe('resume fidelity', () => {
-  it('keeps the resume wording for the promotions bullet', () => {
+  it('states the two role moves as larger responsibility, not promotions', () => {
     const all = roles.flatMap((r) => r.bullets).join(' ');
-    expect(all).toContain('Promoted twice in 11 months, from Software Test Team Leader to Software Engineering Manager, then Senior Software Engineering Manager.');
-    expect(all).not.toContain('Promoted two people');
+    expect(all).toContain('Took on two roles with larger responsibility in 11 months, moving from Software Test Team Leader to Software Engineering Manager, then Senior Software Engineering Manager.');
+    expect(all).not.toContain('Promoted');
     const people = roles[0].bullets.find((b) => b.includes('people management'))!;
-    expect(people).not.toContain('Promoted');
+    expect(people).not.toContain('larger responsibility');
   });
 });

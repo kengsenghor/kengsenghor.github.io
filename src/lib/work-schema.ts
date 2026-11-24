@@ -6,4 +6,5 @@ export const workSchema = z.object({
   period: z.string().min(1),
   summary: z.string().min(20),
   tags: z.array(z.string().min(1)).min(1),
+  widget: z.enum(['forecast']).optional(),
 });

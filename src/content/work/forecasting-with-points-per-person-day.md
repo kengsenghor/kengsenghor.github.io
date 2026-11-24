@@ -4,6 +4,7 @@ role: Engineering manager
 period: Ongoing practice
 summary: A simple way to forecast sprints that compares like with like by measuring velocity per available person-day.
 tags: [Agile delivery, Forecasting, Metrics, Sprint planning]
+widget: forecast
 ---
 
 ## Problem

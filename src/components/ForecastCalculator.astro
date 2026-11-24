@@ -1,0 +1,68 @@
+---
+const sprints = [1, 2, 3, 4];
+---
+<fieldset id="forecast-calc" class="calc" hidden>
+  <legend>Sprint forecast calculator</legend>
+  <p class="muted">Enter points finished and person-days available for up to four recent sprints, then the coming sprint. Nothing leaves your browser.</p>
+  <div class="grid" aria-hidden="true"><span></span><span class="head">Points finished</span><span class="head">Person-days</span></div>
+  {sprints.map((n) => (
+    <div class="grid">
+      <span class="rowname" aria-hidden="true">Sprint {n}</span>
+      <label class="sr-only" for={`s${n}-points`}>Sprint {n} points</label>
+      <input class="field" id={`s${n}-points`} inputmode="decimal" autocomplete="off" />
+      <label class="sr-only" for={`s${n}-days`}>Sprint {n} person-days</label>
+      <input class="field" id={`s${n}-days`} inputmode="decimal" autocomplete="off" />
+    </div>
+  ))}
+  <div class="grid">
+    <span class="rowname" aria-hidden="true">Next sprint</span>
+    <label class="sr-only" for="next-days">Upcoming person-days</label>
+    <input class="field" id="next-days" inputmode="decimal" autocomplete="off" placeholder="Person-days" />
+    <label class="sr-only" for="next-planned">Planned points</label>
+    <input class="field" id="next-planned" inputmode="decimal" autocomplete="off" placeholder="Planned points" />
+  </div>
+  <p id="forecast-result" role="status" class="result">Enter points and person-days for at least one recent sprint.</p>
+</fieldset>
+<style>
+  .calc { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 1rem 1.25rem; margin: 2rem 0; }
+  .calc legend { font-weight: 700; padding: 0 .4rem; }
+  .grid { display: grid; grid-template-columns: 6rem 1fr 1fr; gap: .5rem; align-items: center; margin: .4rem 0; }
+  .head { font-size: .8rem; color: var(--muted); font-family: var(--mono); }
+  .rowname { font-family: var(--mono); font-size: .85rem; }
+  .field { max-width: none; }
+  .result { margin: 1rem 0 0; padding: .75rem 1rem; border-left: 3px solid var(--accent); background: var(--bg); }
+</style>
+<script>
+  import { baseline, forecast } from '../lib/forecast';
+
+  const root = document.getElementById('forecast-calc')!;
+  const out = document.getElementById('forecast-result')!;
+  const get = (id: string) => (document.getElementById(id) as HTMLInputElement).value;
+  const num = (v: string) => (v.trim() === '' ? NaN : Number(v));
+  const fmt = (n: number) => String(Math.round(n * 100) / 100);
+
+  function update() {
+    const sprints = [1, 2, 3, 4]
+      .map((n) => ({ points: num(get(`s${n}-points`)), personDays: num(get(`s${n}-days`)) }))
+      .filter((s) => Number.isFinite(s.points) && s.points >= 0 && Number.isFinite(s.personDays) && s.personDays > 0);
+    if (sprints.length === 0) {
+      out.textContent = 'Enter points and person-days for at least one recent sprint.';
+      return;
+    }
+    const base = baseline(sprints);
+    const days = num(get('next-days'));
+    const planned = num(get('next-planned'));
+    const head = `Baseline: ${fmt(base)} points per person-day.`;
+    if (!Number.isFinite(days) || days <= 0 || !Number.isFinite(planned) || planned < 0) {
+      out.textContent = `${head} Enter the upcoming person-days and the planned points to see capacity.`;
+      return;
+    }
+    const f = forecast(base, days, planned);
+    out.textContent = f.withinCapacity
+      ? `${head} Capacity: ${fmt(f.capacity)} points. Planned ${fmt(planned)} points is within capacity.`
+      : `${head} Capacity: ${fmt(f.capacity)} points. Planned ${fmt(planned)} points is a stretch of ${fmt(f.stretch)} points, so call it one.`;
+  }
+
+  root.querySelectorAll('input').forEach((i) => i.addEventListener('input', update));
+  root.hidden = false;
+</script>

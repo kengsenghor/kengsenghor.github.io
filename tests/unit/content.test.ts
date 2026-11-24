@@ -35,6 +35,16 @@ describe('case study frontmatter', () => {
       expect(content, f).toMatch(/^## What I did/m);
     }
   });
+  it('accepts the optional forecast widget and rejects unknown widgets', () => {
+    const base = { title: 'T', role: 'R', period: 'P', summary: 'a long enough summary here', tags: ['x'] };
+    expect(workSchema.safeParse({ ...base, widget: 'forecast' }).success).toBe(true);
+    expect(workSchema.safeParse(base).success).toBe(true);
+    expect(workSchema.safeParse({ ...base, widget: 'nope' }).success).toBe(false);
+  });
+  it('the forecasting study declares the forecast widget', () => {
+    const { data } = matter(readFileSync(join(dir, 'forecasting-with-points-per-person-day.md'), 'utf8'));
+    expect(data.widget).toBe('forecast');
+  });
   it('rejects an empty summary', () => {
     const r = workSchema.safeParse({ title: 'T', role: 'R', period: 'P', summary: '', tags: ['x'] });
     expect(r.success).toBe(false);

@@ -49,7 +49,7 @@ No company-related terms anywhere: no employer, internal product or vendor brand
 
 `npm run build` produces plain static files in `dist/`. Upload them to any static host and serve at the domain root. There is no server and no `base` path.
 
-## Photo and CV download
+## Monogram and CV download
 
-- The headshot is `public/headshot.jpg` (480px, camera metadata stripped).
+- The home page shows a text monogram (KH) instead of a photo. To add a photo later, put a metadata-free, resized image in `public/` and replace the `.monogram` element in `src/pages/index.astro`.
 - The CV download `public/cv.pdf` is generated from the `/cv` page by `npm run cv-pdf`, so it matches the page and carries no phone number or company names. After changing `src/data/career.ts`, run `npm run build && npm run cv-pdf` and commit the new PDF. `npm run scan` reads the PDF text with `pdftotext`.

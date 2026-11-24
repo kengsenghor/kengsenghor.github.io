@@ -36,18 +36,14 @@ test('build-log hero lines are plain text and carry no animation under reduced m
   expect(anim).toBe('none');
 });
 
-test('headshot has meaningful alt text', async ({ page }) => {
+test('shows a monogram instead of a photo', async ({ page, request }) => {
   await page.goto('/');
-  const img = page.locator('img.headshot');
-  await expect(img).toHaveAttribute('alt', /Keng Seng Hor/);
-});
-
-test('headshot is the real photo and loads', async ({ page }) => {
-  await page.goto('/');
-  const img = page.locator('img.headshot');
-  await expect(img).toHaveAttribute('src', '/headshot.jpg');
-  const ok = await img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth >= 240);
-  expect(ok).toBe(true);
+  await expect(page.locator('img.headshot')).toHaveCount(0);
+  const mono = page.locator('.monogram');
+  await expect(mono).toBeVisible();
+  await expect(mono).toHaveText('KH');
+  await expect(mono).toHaveAttribute('aria-hidden', 'true');
+  expect((await request.get('/headshot.jpg')).status()).toBe(404);
 });
 
 test('has LinkedIn and email links and no tel: link', async ({ page }) => {

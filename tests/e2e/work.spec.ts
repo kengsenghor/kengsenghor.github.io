@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
+import { readdirSync } from 'node:fs';
 
-const slugs = ['agentic-testing-pipeline', 'visual-ui-test-suite', 'scrum-to-kanban', 'manual-to-automation', 'rescuing-legacy-selenium-suite', 'playwright-typescript-standard'];
+const slugs = readdirSync('src/content/work').filter((f) => f.endsWith('.md')).map((f) => f.replace(/\.md$/, ''));
 
 for (const slug of slugs) {
   test(`case study ${slug} has one h1 and the Problem and What I did headings`, async ({ page }) => {
@@ -12,13 +13,13 @@ for (const slug of slugs) {
   });
 }
 
-test('/work lists six case-study links', async ({ page }) => {
+test('/work lists every case-study link', async ({ page }) => {
   await page.goto('/work');
   const links = page.locator('main a[href^="/work/"]');
-  await expect(links).toHaveCount(6);
+  await expect(links).toHaveCount(slugs.length);
 });
 
-test('home page shows the six case studies in Selected work', async ({ page }) => {
+test('home page shows every case study in Selected work', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('.grid article')).toHaveCount(6);
+  await expect(page.locator('.grid article')).toHaveCount(slugs.length);
 });

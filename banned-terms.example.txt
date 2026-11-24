@@ -1,0 +1,4 @@
+# Copy this file to banned-terms.txt (which is git-ignored and stays on your machine).
+# One case-insensitive term per line: employer names, internal product and platform
+# names, and third-party vendor or tool brands. Blank lines and # comments are ignored.
+# example-term

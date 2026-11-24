@@ -2,7 +2,12 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-const terms = readFileSync('banned-terms.txt', 'utf8')
+let raw;
+try { raw = readFileSync('banned-terms.txt', 'utf8'); } catch {
+  console.error('banned-terms.txt is missing. It is kept local and never committed: copy banned-terms.example.txt to banned-terms.txt and add the terms.');
+  process.exit(1);
+}
+const terms = raw
   .split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
 if (terms.length === 0) { console.error('banned-terms.txt has no terms'); process.exit(1); }
 

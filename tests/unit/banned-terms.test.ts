@@ -48,3 +48,9 @@ describe('repository content', () => {
     expect(hits).toEqual([]);
   });
 });
+
+describe('missing list', () => {
+  it('fails with a clear message that says how to create it', () => {
+    expect(() => loadBannedTerms(join(tmpdir(), 'does-not-exist-banned.txt'))).toThrow(/banned-terms\.example\.txt/);
+  });
+});

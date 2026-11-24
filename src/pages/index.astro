@@ -18,7 +18,7 @@ const logLines = order.map((s) => {
   const rs = roles.filter((r) => r.stage === s);
   const from = Math.min(...rs.map((r) => Number(year(r.start))));
   const to = rs.some((r) => r.end === 'present') ? 'present' : String(Math.max(...rs.map((r) => Number(year(r.end)))));
-  return `stage ${s} (${from} to ${to}): passed`;
+  return { stage: s, text: `stage ${s} (${from} to ${to}): passed` };
 });
 ---
 <Base title="Keng Seng Hor | Work portfolio" description="Work portfolio of Keng Seng Hor, Senior Software Engineering Manager: quality engineering, delivery and AI-assisted engineering.">
@@ -36,10 +36,15 @@ const logLines = order.map((s) => {
 
   <section aria-labelledby="run">
     <h2 id="run">Pipeline run</h2>
-    <ol class="build-log">
-      <li class="cmd">$ pipeline run --career</li>
-      {logLines.map((l) => <li><span class="ok">✔</span> {l}</li>)}
-      <li><span class="ok">✔</span> quality gate: passed</li>
+    <p class="row" id="run-actions" hidden>
+      <button type="button" class="btn" id="run-pipeline">Run pipeline</button>
+      <button type="button" class="btn" id="reset-pipeline" hidden>Reset</button>
+      <span id="run-status" role="status" class="muted"></span>
+    </p>
+    <ol class="build-log" id="build-log">
+      <li class="cmd" data-cmd>$ pipeline run --career</li>
+      {logLines.map((l) => <li data-stage={l.stage}><span class="ok">✔</span> <a class="stage-link" href="#stages" data-stage={l.stage}>{l.text}</a></li>)}
+      <li data-gate><span class="ok">✔</span> quality gate: passed</li>
     </ol>
   </section>
 
@@ -73,6 +78,57 @@ const logLines = order.map((s) => {
   document.getElementById('expand-all')!.addEventListener('click', () => stages().forEach((d) => (d.open = true)));
   document.getElementById('collapse-all')!.addEventListener('click', () => stages().forEach((d) => (d.open = false)));
   actions.hidden = false;
+
+  // Run pipeline: play the build log line by line.
+  const log = document.getElementById('build-log')!;
+  const lines = [...log.querySelectorAll<HTMLElement>('li')];
+  const runBtn = document.getElementById('run-pipeline') as HTMLButtonElement;
+  const resetBtn = document.getElementById('reset-pipeline') as HTMLButtonElement;
+  const status = document.getElementById('run-status')!;
+  let token = 0;
+
+  const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  function showAll() {
+    token++;
+    lines.forEach((l) => l.removeAttribute('data-pending'));
+    resetBtn.hidden = true;
+    runBtn.hidden = false;
+    status.textContent = '';
+  }
+  async function run() {
+    const mine = ++token;
+    resetBtn.hidden = false;
+    if (reduced()) {
+      lines.forEach((l) => l.removeAttribute('data-pending'));
+      status.textContent = 'Pipeline run complete';
+      return;
+    }
+    lines.forEach((l, i) => (i === 0 ? l.removeAttribute('data-pending') : l.setAttribute('data-pending', '')));
+    status.textContent = 'Running pipeline';
+    for (let i = 1; i < lines.length; i++) {
+      await wait(450);
+      if (mine !== token) return;
+      lines[i].removeAttribute('data-pending');
+    }
+    status.textContent = 'Pipeline run complete';
+  }
+  runBtn.addEventListener('click', run);
+  resetBtn.addEventListener('click', showAll);
+  document.getElementById('run-actions')!.hidden = false;
+
+  // Clicking a stage line opens that stage and moves focus to it.
+  log.querySelectorAll<HTMLAnchorElement>('a.stage-link').forEach((a) =>
+    a.addEventListener('click', (e) => {
+      const target = document.querySelector<HTMLDetailsElement>(`details.stage[data-stage="${a.dataset.stage}"]`);
+      if (!target) return;
+      e.preventDefault();
+      target.open = true;
+      const summary = target.querySelector('summary')!;
+      summary.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'center' });
+      summary.focus({ preventScroll: true });
+    }),
+  );
 </script>
 
 <style>
@@ -83,6 +139,9 @@ const logLines = order.map((s) => {
   .build-log { font-family: var(--mono); font-size: .9rem; list-style: none; margin: 0; padding: 1rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow-wrap: anywhere; }
   .build-log li { margin: .15rem 0; }
   .build-log .cmd { color: var(--muted); }
+  .build-log li[data-pending] { visibility: hidden; }
+  .build-log a { color: inherit; text-decoration: none; }
+  .build-log a:hover { text-decoration: underline; }
   .ok { color: var(--ok); }
   .row { display: flex; gap: .5rem; margin: 0 0 1rem; }
   .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }

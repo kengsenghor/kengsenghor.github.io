@@ -1,0 +1,10 @@
+---
+import Base from '../../layouts/Base.astro';
+import Quiz from '../../components/Quiz.astro';
+import { TRIAGE_ITEMS, TRIAGE_CHOICES } from '../../lib/quizzes';
+---
+<Base title="Regression, change or flake? | Keng Seng Hor" description="A visual diff or failing test needs triage before anyone touches a baseline. Is it a regression, an intentional change or a flake?">
+  <h1>Regression, change or flake?</h1>
+  <p class="lead">A visual diff or failing test needs triage before anyone touches a baseline. Is it a regression, an intentional change or a flake?</p>
+  <Quiz items={TRIAGE_ITEMS} choices={TRIAGE_CHOICES} />
+</Base>

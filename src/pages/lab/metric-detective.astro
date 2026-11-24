@@ -1,0 +1,10 @@
+---
+import Base from '../../layouts/Base.astro';
+import Quiz from '../../components/Quiz.astro';
+import { METRIC_ITEMS, METRIC_CHOICES } from '../../lib/quizzes';
+---
+<Base title="Metric detective | Keng Seng Hor" description="A metric moved. Read the trend and choose the question to ask first.">
+  <h1>Metric detective</h1>
+  <p class="lead">A metric moved. Read the trend and choose the question to ask first.</p>
+  <Quiz items={METRIC_ITEMS} choices={METRIC_CHOICES} />
+</Base>

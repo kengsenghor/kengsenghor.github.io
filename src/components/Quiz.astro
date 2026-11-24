@@ -1,0 +1,173 @@
+---
+import type { QuizItem } from '../lib/quiz';
+import { describeSeries } from '../lib/sparkline';
+interface Props { items: QuizItem[]; choices: readonly string[] }
+const { items, choices } = Astro.props;
+const data = JSON.stringify({ items, choices }).replace(/</g, '\\u003c');
+---
+<section id="quiz" hidden aria-labelledby="quiz-progress">
+  <p id="quiz-progress" class="progress"></p>
+  <div id="prompt-area" class="box">
+    <p id="prompt"></p>
+  </div>
+  <p class="row" id="choices" role="group" aria-label="Your answer"></p>
+  <div id="feedback" role="status" hidden class="box"></div>
+  <p><button type="button" class="btn" id="btn-next" hidden>Next</button></p>
+  <div id="result" hidden class="box">
+    <h2 id="result-title" tabindex="-1"></h2>
+    <p id="result-note"></p>
+    <button type="button" class="btn" id="btn-again">Play again</button>
+  </div>
+</section>
+
+<ol id="static-list" class="static">
+  {items.map((i) => (
+    <li>
+      <p><strong>Question:</strong> {i.prompt}</p>
+      {i.series && <p><strong>Trend:</strong> {describeSeries(i.series, i.unit)}</p>}
+      <p><strong>Answer:</strong> {i.correct}. <strong>Rule:</strong> {i.rule} {i.why}</p>
+    </li>
+  ))}
+</ol>
+
+<script type="application/json" id="quiz-data" is:inline set:html={data}></script>
+
+<style>
+  .row { display: flex; flex-wrap: wrap; gap: .75rem; }
+  .row :global(.btn) { padding: .5rem 1.1rem; font-size: 1rem; }
+  :global(.btn:disabled) { opacity: .55; cursor: not-allowed; }
+  .static { padding-left: 1.25rem; }
+  .static li { margin-bottom: 1.25rem; }
+  .static p { margin: .25rem 0; }
+  #prompt-area :global(svg) { display: block; margin-top: .75rem; max-width: 100%; }
+</style>
+
+<script>
+  import { scoreQuiz, type QuizItem } from '../lib/quiz';
+  import { sparklinePoints, describeSeries } from '../lib/sparkline';
+
+  const { items, choices } = JSON.parse(document.getElementById('quiz-data')!.textContent!) as { items: QuizItem[]; choices: string[] };
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const quiz = $('quiz');
+  const progress = $('quiz-progress');
+  const promptArea = $('prompt-area');
+  const prompt = $('prompt');
+  const choicesBox = $('choices');
+  const feedback = $('feedback');
+  const next = $<HTMLButtonElement>('btn-next');
+  const result = $('result');
+
+  let order: QuizItem[] = [];
+  let index = 0;
+  let answered = false;
+  let answers: Record<string, string> = {};
+
+  const buttons = choices.map((c) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn';
+    b.textContent = c;
+    b.addEventListener('click', () => answer(c));
+    choicesBox.append(b);
+    return b;
+  });
+
+  const shuffle = <T,>(a: T[]) => {
+    const r = [...a];
+    for (let i = r.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [r[i], r[j]] = [r[j], r[i]];
+    }
+    return r;
+  };
+
+  function drawSeries(item: QuizItem) {
+    promptArea.querySelector('svg')?.remove();
+    if (!item.series) return;
+    const w = 240;
+    const h = 56;
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.setAttribute('width', String(w));
+    svg.setAttribute('height', String(h));
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', `Trend: ${describeSeries(item.series, item.unit)}`);
+    const line = document.createElementNS(ns, 'polyline');
+    line.setAttribute('points', sparklinePoints(item.series, w, h, 6));
+    line.setAttribute('fill', 'none');
+    line.setAttribute('stroke', 'var(--accent)');
+    line.setAttribute('stroke-width', '2');
+    line.setAttribute('stroke-linejoin', 'round');
+    svg.append(line);
+    promptArea.append(svg);
+  }
+
+  function show() {
+    const item = order[index];
+    answered = false;
+    progress.textContent = `Question ${index + 1} of ${order.length}`;
+    prompt.textContent = item.prompt;
+    drawSeries(item);
+    feedback.hidden = true;
+    next.hidden = true;
+    buttons.forEach((b) => (b.disabled = false));
+    result.hidden = true;
+    buttons[0].focus();
+  }
+
+  function answer(choice: string) {
+    if (answered) return;
+    answered = true;
+    const item = order[index];
+    answers[item.id] = choice;
+    const right = choice === item.correct;
+    feedback.replaceChildren();
+    const head = document.createElement('p');
+    const strong = document.createElement('strong');
+    strong.textContent = right ? `Correct: ${item.correct}.` : `Not quite: the answer was ${item.correct}.`;
+    head.append(strong);
+    const rule = document.createElement('p');
+    rule.textContent = `Rule: ${item.rule}`;
+    const why = document.createElement('p');
+    why.textContent = item.why;
+    feedback.append(head, rule, why);
+    feedback.hidden = false;
+    buttons.forEach((b) => (b.disabled = true));
+    next.textContent = index === order.length - 1 ? 'See score' : 'Next';
+    next.hidden = false;
+    next.focus();
+  }
+
+  function finish() {
+    const { correct, total } = scoreQuiz(items, answers);
+    $('result-title').textContent = `You scored ${correct} of ${total}`;
+    $('result-note').textContent =
+      correct === total ? 'A clean sheet.' : 'Read the explanations again, then play once more. The reasons matter more than the score.';
+    [promptArea, choicesBox, feedback, next].forEach((el) => (el.hidden = true));
+    progress.textContent = 'Finished';
+    result.hidden = false;
+    $('result-title').focus();
+  }
+
+  function start() {
+    order = shuffle(items);
+    index = 0;
+    answers = {};
+    promptArea.hidden = false;
+    choicesBox.hidden = false;
+    show();
+  }
+
+  next.addEventListener('click', () => {
+    if (index === order.length - 1) finish();
+    else {
+      index++;
+      show();
+    }
+  });
+  $('btn-again').addEventListener('click', start);
+  $('static-list').hidden = true;
+  quiz.hidden = false;
+  start();
+</script>

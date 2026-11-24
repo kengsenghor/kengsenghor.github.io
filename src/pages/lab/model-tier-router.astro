@@ -1,0 +1,10 @@
+---
+import Base from '../../layouts/Base.astro';
+import Quiz from '../../components/Quiz.astro';
+import { ROUTER_ITEMS, ROUTER_CHOICES } from '../../lib/quizzes';
+---
+<Base title="Model tier router | Keng Seng Hor" description="Route each pipeline task to the cheap, standard or capable tier. Escalate one tier only when blocked, ambiguous, or the same failure happens twice.">
+  <h1>Model tier router</h1>
+  <p class="lead">Route each pipeline task to the cheap, standard or capable tier. Escalate one tier only when blocked, ambiguous, or the same failure happens twice.</p>
+  <Quiz items={ROUTER_ITEMS} choices={ROUTER_CHOICES} />
+</Base>

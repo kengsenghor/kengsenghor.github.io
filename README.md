@@ -24,7 +24,7 @@ All controls are added by script; without JavaScript the content is still fully 
 - **Filter and explore:** `/work` has a search box and tag chips (filters are kept in the URL hash); the home page can expand or collapse all career stages.
 - **Run pipeline:** the home page build log can be played line by line; each stage line jumps to that stage. Reduced-motion users get the finished log immediately.
 - **Sprint forecast calculator:** shown on any case study whose frontmatter has `widget: forecast`.
-- **Lab:** `/lab` lists the pieces, including the "Ship or halt" game. Its scenarios live in `src/lib/scenarios.ts`.
+- **Lab:** `/lab` lists ten pieces, defined in `src/lib/labs.ts`. Games and quizzes (Ship or halt, Which layer?, Regression/change/flake, Metric detective, Model tier router) keep their content in `src/lib/scenarios.ts` and `src/lib/quizzes.ts`; the four-in-one `Quiz` component renders any quiz. Tools: Scrum or Kanban, Evidence gate, Test pyramid balancer, Capacity planner and the sprint forecast calculator. Each tool's logic is a plain function in `src/lib/` with unit tests.
 
 ## Photo
 

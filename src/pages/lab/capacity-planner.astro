@@ -1,0 +1,68 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Capacity planner | Keng Seng Hor" description="Turn leave and holidays into real person-days for a sprint, then send them to the forecast calculator.">
+  <h1>Capacity planner</h1>
+  <p class="lead">A forecast is only as good as the person-days behind it. Enter the sprint length, shared holidays and each person's leave to get the days really available.</p>
+
+  <form id="capacity-tool" class="tool" hidden>
+    <div class="fieldrow"><label for="c-sprint">Sprint length (days)</label><input id="c-sprint" class="field" inputmode="decimal" autocomplete="off" value="10" /></div>
+    <div class="fieldrow"><label for="c-holidays">Shared holidays (days)</label><input id="c-holidays" class="field" inputmode="decimal" autocomplete="off" value="0" /></div>
+    <div id="people" class="tool"></div>
+    <p class="row">
+      <button type="button" class="btn" id="add-person">Add person</button>
+      <button type="button" class="btn" id="remove-person">Remove last person</button>
+    </p>
+    <div id="capacity-result" role="status" class="result"></div>
+    <p><a id="capacity-link" href="/work/forecasting-with-points-per-person-day#forecast-calc">Use this in the forecast calculator</a></p>
+  </form>
+
+  <section class="how">
+    <h2>How it works</h2>
+    <p>Each person's available days are the sprint length, minus shared holidays, minus their own leave, and never below zero. The team's person-days are the sum. Half days are fine. Velocity per person-day then lets sprints of any size and season be compared like for like.</p>
+  </section>
+</Base>
+<style>
+  .row { display: flex; flex-wrap: wrap; gap: .75rem; margin: 0; }
+</style>
+<script>
+  import { personDays } from '../../lib/capacity';
+
+  const form = document.getElementById('capacity-tool') as HTMLFormElement;
+  const people = document.getElementById('people')!;
+  const out = document.getElementById('capacity-result')!;
+  const link = document.getElementById('capacity-link') as HTMLAnchorElement;
+  const num = (v: string) => (v.trim() === '' ? 0 : Number(v));
+
+  function addPerson() {
+    const n = people.children.length + 1;
+    const row = document.createElement('div');
+    row.className = 'fieldrow';
+    const label = document.createElement('label');
+    label.htmlFor = `leave-${n}`;
+    label.textContent = `Person ${n} leave (days)`;
+    const input = document.createElement('input');
+    input.id = `leave-${n}`;
+    input.className = 'field';
+    input.setAttribute('inputmode', 'decimal');
+    input.autocomplete = 'off';
+    input.value = '0';
+    row.append(label, input);
+    people.append(row);
+  }
+
+  function update() {
+    const leaves = [...people.querySelectorAll<HTMLInputElement>('input')].map((i) => num(i.value));
+    const days = personDays(num((document.getElementById('c-sprint') as HTMLInputElement).value), num((document.getElementById('c-holidays') as HTMLInputElement).value), leaves);
+    out.textContent = `${days} person-days across ${leaves.length} ${leaves.length === 1 ? 'person' : 'people'}.`;
+    link.href = `/work/forecasting-with-points-per-person-day?days=${days}#forecast-calc`;
+  }
+
+  for (let i = 0; i < 3; i++) addPerson();
+  document.getElementById('add-person')!.addEventListener('click', () => { addPerson(); update(); });
+  document.getElementById('remove-person')!.addEventListener('click', () => { if (people.children.length > 1) people.lastElementChild!.remove(); update(); });
+  form.addEventListener('input', update);
+  form.addEventListener('submit', (e) => e.preventDefault());
+  form.hidden = false;
+  update();
+</script>

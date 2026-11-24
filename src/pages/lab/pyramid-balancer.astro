@@ -1,0 +1,61 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Test pyramid balancer | Keng Seng Hor" description="Slide the mix of unit, API and end-to-end tests and watch run time and upkeep change.">
+  <h1>Test pyramid balancer</h1>
+  <p class="lead">I push teams to shape tests like a pyramid: many fast unit tests, some API tests, few end-to-end journeys. Move the sliders and see what the mix costs.</p>
+  <p class="muted">This is an illustrative model with assumed per-test costs, not measured data.</p>
+
+  <form id="pyramid-tool" class="tool" hidden>
+    <div class="fieldrow"><label for="p-unit">Unit tests</label><input id="p-unit" type="range" min="0" max="100" value="50" /></div>
+    <div class="fieldrow"><label for="p-api">API tests</label><input id="p-api" type="range" min="0" max="100" value="30" /></div>
+    <div class="fieldrow"><label for="p-e2e">End-to-end tests</label><input id="p-e2e" type="range" min="0" max="100" value="20" /></div>
+    <div class="bars" aria-hidden="true">
+      <div class="bar unit" id="bar-unit"></div>
+      <div class="bar api" id="bar-api"></div>
+      <div class="bar e2e" id="bar-e2e"></div>
+    </div>
+    <div id="pyramid-result" role="status" class="result"></div>
+  </form>
+
+  <section class="how">
+    <h2>How it works</h2>
+    <p>The model assumes 1,000 tests. A unit test takes about 0.05 seconds to run and costs 1 unit of upkeep, an API test 0.5 seconds and 3 units, and an end-to-end test 20 seconds and 10 units. The upkeep index is 100 for a 50/30/20 split, a common starting point. Higher is costlier to keep stable. Real numbers vary by team, so treat this as a way to see the shape of the trade-off.</p>
+  </section>
+</Base>
+<style>
+  input[type='range'] { width: 100%; max-width: 28rem; accent-color: var(--accent); }
+  .bars { display: flex; height: 1.2rem; max-width: 28rem; border-radius: 999px; overflow: hidden; border: 1px solid var(--line); }
+  .bar { height: 100%; transition: width .2s ease; }
+  .unit { background: var(--accent); }
+  .api { background: color-mix(in srgb, var(--accent) 55%, var(--bg)); }
+  .e2e { background: color-mix(in srgb, var(--ink) 55%, var(--bg)); }
+  @media (prefers-reduced-motion: reduce) { .bar { transition: none; } }
+</style>
+<script>
+  import { pyramidReport } from '../../lib/pyramid';
+
+  const form = document.getElementById('pyramid-tool') as HTMLFormElement;
+  const out = document.getElementById('pyramid-result')!;
+  const get = (id: string) => Number((document.getElementById(id) as HTMLInputElement).value);
+
+  function update() {
+    const r = pyramidReport({ unit: get('p-unit'), api: get('p-api'), e2e: get('p-e2e') });
+    (document.getElementById('bar-unit') as HTMLElement).style.width = `${r.shares.unit}%`;
+    (document.getElementById('bar-api') as HTMLElement).style.width = `${r.shares.api}%`;
+    (document.getElementById('bar-e2e') as HTMLElement).style.width = `${r.shares.e2e}%`;
+    out.replaceChildren();
+    const p1 = document.createElement('p');
+    p1.textContent = `Mix: ${r.shares.unit}% unit, ${r.shares.api}% API, ${r.shares.e2e}% end to end. Shape: ${r.shape}.`;
+    const p2 = document.createElement('p');
+    p2.textContent = `Estimated run time: ${r.runMinutes} minutes for 1,000 tests. Upkeep index: ${r.upkeepIndex} (the 50/30/20 split is 100).`;
+    const p3 = document.createElement('p');
+    p3.textContent = r.verdict;
+    out.append(p1, p2, p3);
+  }
+
+  form.addEventListener('input', update);
+  form.addEventListener('submit', (e) => e.preventDefault());
+  form.hidden = false;
+  update();
+</script>

@@ -1,0 +1,71 @@
+---
+import Base from '../../layouts/Base.astro';
+import { QUESTIONS } from '../../lib/process-choice';
+const data = JSON.stringify(QUESTIONS.map((q) => q.id));
+---
+<Base title="Scrum or Kanban? | Keng Seng Hor" description="Five questions about a team lead to a Scrum or Kanban recommendation, with the trade-off spelled out.">
+  <h1>Scrum or Kanban?</h1>
+  <p class="lead">Answer five questions about a team. You get a recommendation, the reasons behind it, and the trade-off you are accepting.</p>
+
+  <form id="process-tool" class="tool" hidden>
+    {QUESTIONS.map((q) => (
+      <fieldset>
+        <legend>{q.text}</legend>
+        {q.options.map((o, i) => (
+          <label class="opt"><input type="radio" name={q.id} value={String(i)} /> {o.label}</label>
+        ))}
+      </fieldset>
+    ))}
+    <div id="recommendation" role="status" class="result">Answer the questions to see a recommendation.</div>
+  </form>
+
+  <section class="how">
+    <h2>How it works</h2>
+    <p>Each answer leans towards Scrum, towards Kanban, or neither. The side with more answers wins, and a tie means either can work. It is a prompt for a conversation, not a verdict.</p>
+    <ul>
+      <li><strong>Scrum</strong> suits stable capacity, planned work of similar size and stakeholders who want a committed cadence.</li>
+      <li><strong>Kanban</strong> suits interrupt-driven work, shared capacity and priorities that change often.</li>
+      <li>In one case I moved a resource-constrained shared team from Scrum to Kanban, while another team stayed on Scrum with shorter sprints.</li>
+    </ul>
+  </section>
+</Base>
+
+<script>
+  import { QUESTIONS, recommend } from '../../lib/process-choice';
+
+  const form = document.getElementById('process-tool') as HTMLFormElement;
+  const out = document.getElementById('recommendation')!;
+  const NAMES = { scrum: 'Scrum', kanban: 'Kanban', either: 'Either Scrum or Kanban' } as const;
+
+  function update() {
+    const answers: Record<string, number> = {};
+    for (const q of QUESTIONS) {
+      const checked = form.querySelector<HTMLInputElement>(`input[name="${q.id}"]:checked`);
+      if (checked) answers[q.id] = Number(checked.value);
+    }
+    const answered = Object.keys(answers).length;
+    if (answered === 0) {
+      out.textContent = 'Answer the questions to see a recommendation.';
+      return;
+    }
+    const r = recommend(answers);
+    out.replaceChildren();
+    const head = document.createElement('p');
+    const strong = document.createElement('strong');
+    strong.textContent = `${NAMES[r.pick]}`;
+    head.append(strong, ` (${answered} of ${QUESTIONS.length} answered; ${r.scrum} lean Scrum, ${r.kanban} lean Kanban)`);
+    const ul = document.createElement('ul');
+    r.reasons.forEach((t) => {
+      const li = document.createElement('li');
+      li.textContent = t;
+      ul.append(li);
+    });
+    const trade = document.createElement('p');
+    trade.textContent = `The trade-off: ${r.tradeOff}`;
+    out.append(head, ul, trade);
+  }
+
+  form.addEventListener('change', update);
+  form.addEventListener('submit', (e) => e.preventDefault());
+  form.hidden = false;
+</script>

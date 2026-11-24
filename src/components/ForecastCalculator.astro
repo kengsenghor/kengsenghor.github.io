@@ -64,5 +64,8 @@ const sprints = [1, 2, 3, 4];
   }
 
   root.querySelectorAll('input').forEach((i) => i.addEventListener('input', update));
+  const prefill = new URLSearchParams(location.search).get('days');
+  if (prefill && /^\d+(\.\d+)?$/.test(prefill)) (document.getElementById('next-days') as HTMLInputElement).value = prefill;
   root.hidden = false;
+  update();
 </script>

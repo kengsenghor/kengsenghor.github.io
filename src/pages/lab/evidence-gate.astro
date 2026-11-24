@@ -1,0 +1,63 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Evidence gate | Keng Seng Hor" description="Build a stage handoff and see whether the evidence gate advances it, retries it or sends it to a person.">
+  <h1>Evidence gate</h1>
+  <p class="lead">In my agentic testing pipeline, a stage hands over a short capsule and a gate decides what happens next. Build a handoff and see the gate's decision.</p>
+
+  <form id="gate-tool" class="tool" hidden>
+    <div class="fieldrow">
+      <label for="g-status">Stage status</label>
+      <select id="g-status" class="field">
+        <option>PASS</option><option>FAIL</option><option>PARTIAL</option><option>BLOCKED</option>
+      </select>
+    </div>
+    <div class="fieldrow">
+      <label for="g-evidence">Evidence, one item per line</label>
+      <textarea id="g-evidence" class="field" rows="4" placeholder="file paths, selectors, command output"></textarea>
+    </div>
+    <div class="fieldrow">
+      <label for="g-attempts">Retries so far</label>
+      <input id="g-attempts" class="field" type="number" min="0" step="1" value="0" />
+    </div>
+    <label class="opt"><input id="g-safety" type="checkbox" /> <span>A safety rule was violated</span></label>
+    <div id="gate-result" role="status" class="result"></div>
+  </form>
+
+  <section class="how">
+    <h2>How it works</h2>
+    <ul>
+      <li><strong>Safety rules run first.</strong> Any violation, such as editing an assertion, halts everything before the gate is even checked.</li>
+      <li><strong>PASS needs evidence.</strong> A pass with no evidence is a claim, not a result, and the gate refuses it.</li>
+      <li><strong>FAIL gets bounded retries.</strong> Up to two, then the stage is blocked and sent to a person.</li>
+      <li><strong>BLOCKED and PARTIAL always go to a person.</strong> They are never continued silently.</li>
+    </ul>
+  </section>
+</Base>
+
+<script>
+  import { evaluateGate, type Status } from '../../lib/evidence-gate';
+
+  const form = document.getElementById('gate-tool') as HTMLFormElement;
+  const out = document.getElementById('gate-result')!;
+  const status = document.getElementById('g-status') as HTMLSelectElement;
+  const evidence = document.getElementById('g-evidence') as HTMLTextAreaElement;
+  const attempts = document.getElementById('g-attempts') as HTMLInputElement;
+  const safety = document.getElementById('g-safety') as HTMLInputElement;
+
+  function update() {
+    const r = evaluateGate({
+      status: status.value as Status,
+      evidence: evidence.value.split('\n'),
+      attempts: Number(attempts.value),
+      safetyViolation: safety.checked,
+    });
+    out.textContent = r.message;
+  }
+
+  form.addEventListener('input', update);
+  form.addEventListener('change', update);
+  form.addEventListener('submit', (e) => e.preventDefault());
+  form.hidden = false;
+  update();
+</script>

@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { readdirSync } from 'node:fs';
+import { LABS } from '../../src/lib/labs';
 import AxeBuilder from '@axe-core/playwright';
 
 const studies = readdirSync('src/content/work').filter((f) => f.endsWith('.md')).map((f) => `/work/${f.replace(/\.md$/, '')}`);
-const routes = ['/', '/work', '/lab', '/lab/ship-or-halt', '/cv', '/contact', ...studies];
+const routes = ['/', '/work', '/lab', ...LABS.filter((l) => l.page).map((l) => l.href), '/cv', '/contact', ...studies];
 
 for (const theme of ['light', 'dark'] as const) {
   for (const route of routes) {

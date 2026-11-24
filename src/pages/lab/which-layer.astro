@@ -1,0 +1,10 @@
+---
+import Base from '../../layouts/Base.astro';
+import Quiz from '../../components/Quiz.astro';
+import { LAYER_ITEMS, LAYER_CHOICES } from '../../lib/quizzes';
+---
+<Base title="Which layer? | Keng Seng Hor" description="Sort each snippet into the layer that owns it: test, helper, page object or control. Dependencies point down only.">
+  <h1>Which layer?</h1>
+  <p class="lead">Sort each snippet into the layer that owns it: test, helper, page object or control. Dependencies point down only.</p>
+  <Quiz items={LAYER_ITEMS} choices={LAYER_CHOICES} />
+</Base>

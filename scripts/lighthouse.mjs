@@ -5,7 +5,7 @@ import lighthouse from 'lighthouse';
 import { chromium } from '@playwright/test';
 
 const PORT = 4322;
-const routes = ['/', '/work', '/cv', '/contact', '/work/agentic-testing-pipeline'];
+const routes = ['/', '/work', '/lab', '/lab/which-layer', '/lab/pyramid-balancer', '/cv', '/contact', '/work/agentic-testing-pipeline'];
 const override = process.env.LH_MIN_ALL ? Number(process.env.LH_MIN_ALL) : null;
 const min = { accessibility: override ?? 0.95, performance: override ?? 0.9, 'best-practices': override ?? 0.9, seo: override ?? 0.9 };
 

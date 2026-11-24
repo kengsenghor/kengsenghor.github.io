@@ -1,18 +1,17 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { LABS } from '../../lib/labs';
 ---
-<Base title="Lab | Keng Seng Hor" description="Small interactive pieces drawn from my work: a game about governing AI agents and a sprint forecast calculator.">
+<Base title="Lab | Keng Seng Hor" description="Small interactive pieces drawn from my work: games, quizzes and calculators about test automation, AI agents and engineering leadership.">
   <h1>Lab</h1>
   <p class="muted">Small interactive pieces drawn from the work. Nothing leaves your browser.</p>
   <div class="grid">
-    <article class="card">
-      <h3><a href="/lab/ship-or-halt">Ship or halt</a></h3>
-      <p>An AI agent proposes a fix to a failing test. Do you allow it, or halt? Seven short scenarios, two of them legitimate fixes.</p>
-    </article>
-    <article class="card">
-      <h3><a href="/work/forecasting-with-points-per-person-day#forecast-calc">Sprint forecast calculator</a></h3>
-      <p>Enter recent sprints and the coming one to see velocity per person-day, capacity and any stretch.</p>
-    </article>
+    {LABS.map((l) => (
+      <article class="card">
+        <h3><a href={l.href}>{l.title}</a></h3>
+        <p>{l.blurb}</p>
+      </article>
+    ))}
   </div>
 </Base>
 <style>

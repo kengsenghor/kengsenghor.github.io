@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 const routes = [
   '/', '/work', '/cv', '/contact',
-  '/work/agentic-testing-pipeline', '/work/visual-ui-test-suite', '/work/scrum-to-kanban', '/work/manual-to-automation',
+  '/work/agentic-testing-pipeline', '/work/visual-ui-test-suite', '/work/scrum-to-kanban', '/work/manual-to-automation', '/work/rescuing-legacy-selenium-suite', '/work/playwright-typescript-standard',
 ];
 
 for (const theme of ['light', 'dark'] as const) {

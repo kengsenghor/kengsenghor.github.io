@@ -7,15 +7,17 @@ import { workSchema } from '../../src/lib/work-schema';
 const dir = join(process.cwd(), 'src/content/work');
 
 describe('case study frontmatter', () => {
-  it('has the four initial case studies', () => {
+  it('has the six case studies', () => {
     expect(readdirSync(dir).filter((f) => f.endsWith('.md')).sort()).toEqual([
       'agentic-testing-pipeline.md',
       'manual-to-automation.md',
+      'playwright-typescript-standard.md',
+      'rescuing-legacy-selenium-suite.md',
       'scrum-to-kanban.md',
       'visual-ui-test-suite.md',
     ]);
   });
-  it.each(['agentic-testing-pipeline', 'manual-to-automation', 'scrum-to-kanban', 'visual-ui-test-suite'])(
+  it.each(['agentic-testing-pipeline', 'manual-to-automation', 'playwright-typescript-standard', 'rescuing-legacy-selenium-suite', 'scrum-to-kanban', 'visual-ui-test-suite'])(
     '%s parses against the schema',
     (slug) => {
       const { data } = matter(readFileSync(join(dir, `${slug}.md`), 'utf8'));

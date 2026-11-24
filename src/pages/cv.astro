@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import { roles, education, certifications, skills, profile } from '../data/career';
+---
+<Base title="CV | Keng Seng Hor" description="Plain-text CV of Keng Seng Hor: roles, education and certifications.">
+  <h1>CV</h1>
+  <p class="muted">{profile.name}, {profile.title}</p>
+  <p><a href="/cv-placeholder.txt" download>Download CV</a></p>
+
+  <h2>Summary</h2>
+  <p>{profile.summary}</p>
+
+  <h2>Experience</h2>
+  {roles.map((r) => (
+    <article class="role">
+      <h3>{r.title}</h3>
+      <p class="muted period">{r.start} to {r.end}</p>
+      <p>{r.summary}</p>
+      <ul>{r.bullets.map((b) => <li>{b}</li>)}</ul>
+    </article>
+  ))}
+
+  <h2>Skills</h2>
+  <ul>{skills.map((s) => <li>{s}</li>)}</ul>
+
+  <h2>Education</h2>
+  <p>{education.school}<br />{education.degree}<br /><span class="muted">{education.years}</span></p>
+
+  <h2>Certifications</h2>
+  <ul>{certifications.map((c) => <li>{c}</li>)}</ul>
+
+  <h2>Languages</h2>
+  <ul><li>English, professional working</li><li>Chinese, professional working</li><li>Malay, professional working</li><li>Cantonese, native or bilingual</li></ul>
+</Base>
+<style>
+  .role { margin: 0 0 1.5rem; }
+  .role h3 { margin: 0; }
+  .period { font-family: var(--mono); font-size: .85rem; margin: .1rem 0 .5rem; }
+</style>

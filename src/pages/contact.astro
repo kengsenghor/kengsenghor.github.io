@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import { profile } from '../data/career';
+---
+<Base title="Contact | Keng Seng Hor" description="Get in touch with Keng Seng Hor.">
+  <h1>Contact</h1>
+  <p>If you would like to talk about engineering delivery, quality engineering or AI-assisted ways of building software, I would like to hear from you.</p>
+  <ul>
+    <li>Email: <a href={`mailto:${profile.email}`}>{profile.email}</a></li>
+    <li>LinkedIn: <a href={profile.linkedin}>linkedin.com/in/horkengseng</a></li>
+  </ul>
+</Base>

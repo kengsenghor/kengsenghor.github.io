@@ -1,0 +1,69 @@
+---
+---
+<div class="filter" id="work-filter" hidden>
+  <label for="work-search">Search case studies</label>
+  <input id="work-search" class="field" type="search" autocomplete="off" />
+  <div class="chips" id="work-chips" role="group" aria-label="Filter by tag"></div>
+  <p class="row">
+    <button type="button" class="btn" id="work-clear">Clear filters</button>
+    <span id="work-count" role="status" class="muted"></span>
+  </p>
+  <p id="work-empty" class="empty" hidden>No case studies match. Try a different search or clear the filters.</p>
+</div>
+<style>
+  .filter { margin: 1rem 0 1.5rem; display: grid; gap: .6rem; }
+  .filter label { font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin: 0; }
+  .empty { padding: 1rem; border: 1px dashed var(--line); border-radius: var(--radius); margin: 0; }
+</style>
+<script>
+  import { matches, parseHash, buildHash, type Entry } from '../lib/filter';
+
+  const root = document.getElementById('work-filter')!;
+  const search = document.getElementById('work-search') as HTMLInputElement;
+  const chipBox = document.getElementById('work-chips')!;
+  const count = document.getElementById('work-count')!;
+  const empty = document.getElementById('work-empty')!;
+  const cards = [...document.querySelectorAll<HTMLElement>('article.card[data-entry]')].map((el) => ({
+    el,
+    entry: JSON.parse(el.dataset.entry!) as Entry,
+  }));
+
+  const allTags = [...new Map(cards.flatMap((c) => c.entry.tags).map((t) => [t.toLowerCase(), t])).values()].sort((a, b) => a.localeCompare(b));
+  const state = parseHash(location.hash);
+  const chips = allTags.map((tag) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn';
+    b.textContent = tag;
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => {
+      const i = state.tags.findIndex((t) => t.toLowerCase() === tag.toLowerCase());
+      if (i >= 0) state.tags.splice(i, 1);
+      else state.tags.push(tag);
+      apply();
+    });
+    chipBox.append(b);
+    return b;
+  });
+
+  function apply() {
+    let shown = 0;
+    for (const { el, entry } of cards) {
+      const ok = matches(entry, state.q, state.tags);
+      el.hidden = !ok;
+      if (ok) shown++;
+    }
+    chips.forEach((b) => b.setAttribute('aria-pressed', String(state.tags.some((t) => t.toLowerCase() === b.textContent!.toLowerCase()))));
+    search.value = state.q;
+    count.textContent = `${shown} of ${cards.length} case studies`;
+    empty.hidden = shown !== 0;
+    history.replaceState(null, '', location.pathname + location.search + buildHash(state));
+  }
+
+  search.addEventListener('input', () => { state.q = search.value; apply(); });
+  document.getElementById('work-clear')!.addEventListener('click', () => { state.q = ''; state.tags = []; apply(); });
+  root.hidden = false;
+  apply();
+</script>

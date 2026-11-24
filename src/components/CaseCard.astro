@@ -2,7 +2,7 @@
 interface Props { slug: string; title: string; summary: string; tags: string[] }
 const { slug, title, summary, tags } = Astro.props;
 ---
-<article class="card">
+<article class="card" data-entry={JSON.stringify({ title, summary, tags })}>
   <h3><a href={`/work/${slug}`}>{title}</a></h3>
   <p>{summary}</p>
   <ul class="tags">{tags.map((t) => <li>{t}</li>)}</ul>

@@ -1,0 +1,145 @@
+---
+import { SCENARIOS } from '../lib/scenarios';
+---
+<section id="game" hidden aria-labelledby="game-progress">
+  <p id="game-progress" class="progress"></p>
+  <blockquote id="proposal" class="box"></blockquote>
+  <p id="evidence" class="muted"></p>
+  <p class="row">
+    <button type="button" class="btn" id="btn-allow">Allow</button>
+    <button type="button" class="btn" id="btn-halt">Halt</button>
+  </p>
+  <div id="feedback" role="status" hidden class="box"></div>
+  <p><button type="button" class="btn" id="btn-next" hidden>Next</button></p>
+  <div id="result" hidden class="box">
+    <h2 id="result-title" tabindex="-1"></h2>
+    <p id="result-note"></p>
+    <button type="button" class="btn" id="btn-again">Play again</button>
+  </div>
+</section>
+
+<ol id="static-list" class="static">
+  {SCENARIOS.map((s) => (
+    <li>
+      <p><strong>Proposal:</strong> {s.proposal}</p>
+      <p><strong>Evidence:</strong> {s.evidence}</p>
+      <p><strong>Right call:</strong> {s.correct === 'halt' ? 'Halt' : 'Allow'}. <strong>Rule:</strong> {s.rule} {s.why}</p>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .progress { font-family: var(--mono); color: var(--muted); margin-bottom: .5rem; }
+  .box { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 1rem 1.25rem; margin: .75rem 0; }
+  blockquote.box { margin-left: 0; margin-right: 0; font-size: 1.1rem; }
+  .row { display: flex; gap: .75rem; }
+  .row .btn { min-width: 6rem; padding: .5rem 1.25rem; font-size: 1rem; }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .static { padding-left: 1.25rem; }
+  .static li { margin-bottom: 1.25rem; }
+  .static p { margin: .25rem 0; }
+</style>
+
+<script>
+  import { SCENARIOS, scoreAnswers, type Choice, type Scenario } from '../lib/scenarios';
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const game = $('game');
+  const progress = $('game-progress');
+  const proposal = $('proposal');
+  const evidence = $('evidence');
+  const feedback = $('feedback');
+  const next = $<HTMLButtonElement>('btn-next');
+  const btnAllow = $<HTMLButtonElement>('btn-allow');
+  const btnHalt = $<HTMLButtonElement>('btn-halt');
+  const result = $('result');
+
+  let order: Scenario[] = [];
+  let index = 0;
+  let answered = false;
+  let answers: Record<string, Choice> = {};
+
+  const shuffle = <T,>(a: T[]) => {
+    const r = [...a];
+    for (let i = r.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [r[i], r[j]] = [r[j], r[i]];
+    }
+    return r;
+  };
+
+  function show() {
+    const s = order[index];
+    answered = false;
+    progress.textContent = `Scenario ${index + 1} of ${order.length}`;
+    proposal.textContent = s.proposal;
+    evidence.textContent = `Evidence: ${s.evidence}`;
+    feedback.hidden = true;
+    next.hidden = true;
+    btnAllow.disabled = false;
+    btnHalt.disabled = false;
+    result.hidden = true;
+    btnAllow.focus();
+  }
+
+  function answer(choice: Choice) {
+    if (answered) return;
+    answered = true;
+    const s = order[index];
+    answers[s.id] = choice;
+    const right = choice === s.correct;
+    feedback.replaceChildren();
+    const head = document.createElement('p');
+    head.innerHTML = '<strong></strong>';
+    head.firstElementChild!.textContent = right ? `Correct: ${s.correct}.` : `Not quite: the right call was ${s.correct}.`;
+    const rule = document.createElement('p');
+    rule.textContent = `Rule: ${s.rule}`;
+    const why = document.createElement('p');
+    why.textContent = s.why;
+    feedback.append(head, rule, why);
+    feedback.hidden = false;
+    btnAllow.disabled = true;
+    btnHalt.disabled = true;
+    next.textContent = index === order.length - 1 ? 'See score' : 'Next';
+    next.hidden = false;
+    next.focus();
+  }
+
+  function finish() {
+    const { correct, total } = scoreAnswers(answers);
+    $('result-title').textContent = `You scored ${correct} of ${total}`;
+    $('result-note').textContent =
+      correct === total
+        ? 'A clean sheet: you halted what needed halting and allowed what was safe.'
+        : 'Halting everything is not the goal. The gates exist to let verified work through and stop the rest.';
+    ['proposal', 'evidence', 'feedback', 'btn-next'].forEach((id) => ($(id).hidden = true));
+    btnAllow.parentElement!.hidden = true;
+    progress.textContent = 'Finished';
+    result.hidden = false;
+    $('result-title').focus();
+  }
+
+  function start() {
+    order = shuffle(SCENARIOS);
+    index = 0;
+    answers = {};
+    ['proposal', 'evidence'].forEach((id) => ($(id).hidden = false));
+    btnAllow.parentElement!.hidden = false;
+    show();
+  }
+
+  btnAllow.addEventListener('click', () => answer('allow'));
+  btnHalt.addEventListener('click', () => answer('halt'));
+  next.addEventListener('click', () => {
+    if (index === order.length - 1) finish();
+    else {
+      index++;
+      show();
+    }
+  });
+  $('btn-again').addEventListener('click', start);
+
+  document.getElementById('static-list')!.hidden = true;
+  game.hidden = false;
+  start();
+</script>

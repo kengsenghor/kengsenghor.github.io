@@ -17,6 +17,19 @@ Static work-portfolio site for Keng Seng Hor, built with Astro. The home page is
 
 Full verification: `npm run check && npm test && npm run build && npm run scan && npm run test:e2e && npm run lighthouse`.
 
+## Interactive features
+
+All controls are added by script; without JavaScript the content is still fully readable.
+
+- **Filter and explore:** `/work` has a search box and tag chips (filters are kept in the URL hash); the home page can expand or collapse all career stages.
+- **Run pipeline:** the home page build log can be played line by line; each stage line jumps to that stage. Reduced-motion users get the finished log immediately.
+- **Sprint forecast calculator:** shown on any case study whose frontmatter has `widget: forecast`.
+- **Lab:** `/lab` lists the pieces, including the "Ship or halt" game. Its scenarios live in `src/lib/scenarios.ts`.
+
+## Photo
+
+The home page shows `src/assets/headshot.jpg` when that file exists, otherwise a text monogram. The file is git-ignored and never committed. CI gets it from the `HEADSHOT_B64` repository secret (base64 of the same file): `base64 -i src/assets/headshot.jpg | tr -d '\n' | gh secret set HEADSHOT_B64`. Keep it small (400px, metadata removed) because secrets are limited to 48 KB.
+
 ## Add a case study
 
 Add one Markdown file to `src/content/work/`. The filename becomes the URL (`/work/<filename>`). Required frontmatter (the build fails with a clear error if any is missing or too short):

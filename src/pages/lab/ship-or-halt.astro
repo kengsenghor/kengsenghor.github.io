@@ -1,0 +1,12 @@
+---
+import Base from '../../layouts/Base.astro';
+import ShipOrHalt from '../../components/ShipOrHalt.astro';
+---
+<Base title="Ship or halt | Keng Seng Hor" description="A short game: decide whether to allow or halt an AI agent's proposed fix to a failing test.">
+  <h1>Ship or halt</h1>
+  <p class="lead">An AI agent proposes a fix to a failing test. Decide whether to allow it or halt. Some fixes are fine, so halting everything will not win.</p>
+  <ShipOrHalt />
+</Base>
+<style>
+  .lead { font-size: 1.1rem; max-width: 44rem; }
+</style>

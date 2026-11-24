@@ -42,7 +42,7 @@ test('nav links are keyboard reachable and show a visible focus ring', async ({ 
   expect(outline.tag).toBe('A');
   expect(outline.style).not.toBe('none');
   expect(outline.width).toBeGreaterThan(0);
-  for (const name of ['Home', 'Work', 'CV', 'Contact']) {
+  for (const name of ['Home', 'Work', 'Lab', 'CV', 'Contact']) {
     await expect(page.getByRole('navigation').getByRole('link', { name })).toBeVisible();
   }
 });

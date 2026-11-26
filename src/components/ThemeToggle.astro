@@ -1,11 +1,15 @@
 ---
 ---
-<button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">theme</button>
+<button type="button" class="theme-toggle" id="theme-toggle" aria-label="Dark theme" aria-pressed="false">theme</button>
 <script is:inline>
-  document.getElementById('theme-toggle').addEventListener('click', function () {
+  var btn = document.getElementById('theme-toggle');
+  function sync() { btn.setAttribute('aria-pressed', document.documentElement.getAttribute('data-theme') === 'dark' ? 'true' : 'false'); }
+  sync();
+  btn.addEventListener('click', function () {
     var root = document.documentElement;
     var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     root.setAttribute('data-theme', next);
     try { localStorage.setItem('theme', next); } catch (e) {}
+    sync();
   });
 </script>
